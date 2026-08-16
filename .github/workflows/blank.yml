@@ -17,31 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Setup Node.js (если используете)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: '22' # Обновлено до актуальной LTS-версии Node.js, чтобы убрать Warning
+
       - name: Install dependencies
-        run: npm ci
+        # Используем npm install вместо npm ci, так как у вас локально нет файла package-lock.json
+        run: npm install 
       
       - name: Build project
-        run: npm run build
+        run: npm run build --if-present # Флаг --if-present не даст упасть, если скрипта build нет в package.json
       
-      - name: Run tests (если есть)
-        run: npm test
-      
-      - name: Deploy to production (только для main)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "🚀 Deploying to PRODUCTION..."
-          # Здесь ваша команда деплоя (например, на хостинг)
-          # rsync -avz --delete ./dist/ user@server:/var/www/html/
-      
-      - name: Deploy to staging (только для develop)
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          echo "🧪 Deploying to STAGING..."
-          # Здесь ваша команда деплоя на стейджинг
-          # rsync -avz --delete ./dist/ user@staging-server:/var/www/html/
+      - name: Run tests
+        run: npm test --if-present # Флаг --if-present не даст упасть, если тесты еще не написаны
